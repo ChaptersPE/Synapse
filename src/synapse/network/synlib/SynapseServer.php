@@ -5,7 +5,7 @@ use synapse\network\SynapseInterface;
 use synapse\Thread;
 
 class SynapseServer extends Thread{
-	const VERSION = "0.1.0";
+	const VERSION = "0.2.0";
 
 	/** @var \ThreadedLogger */
 	private $logger;
@@ -200,7 +200,7 @@ class SynapseServer extends Thread{
 	}
 
 	public function isShutdown(){
-		return $this->shutdown === true;
+		return $this->shutdown;
 	}
 
 	public function shutdown(){

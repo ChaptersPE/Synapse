@@ -40,7 +40,6 @@ class QueryHandler{
 		$this->server->getLogger()->info($this->server->getLanguage()->translateString("synapse.server.query.start"));
 		$addr = ($ip = $this->server->getIp()) != "" ? $ip : "0.0.0.0";
 		$port = $this->server->getPort();
-		$this->server->getLogger()->info($this->server->getLanguage()->translateString("synapse.server.query.info", [$port]));
 		/*
 		The Query protocol is built on top of the existing Minecraft PE UDP network stack.
 		Because the 0xFE packet does not exist in the MCPE protocol,

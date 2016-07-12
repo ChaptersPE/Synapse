@@ -18,7 +18,7 @@
  * @link https://itxtech.org
  *
  */
- 
+
 namespace synapse\network\protocol\spp;
 
 use synapse\utils\UUID;
@@ -34,13 +34,15 @@ class RedirectPacket extends DataPacket{
 	public function encode(){
 		$this->reset();
 		$this->putUUID($this->uuid);
-		$this->putByte($this->direct ? 1 : 0);
-		$this->putString($this->mcpeBuffer);
+		$this->putByte($this->direct);
+		$this->putShort(strlen($this->mcpeBuffer));
+		$this->put($this->mcpeBuffer);
 	}
 
 	public function decode(){
 		$this->uuid = $this->getUUID();
-		$this->direct = ($this->getByte() == 1) ? true : false;
-		$this->mcpeBuffer = $this->getString();
+		$this->direct = ($this->getByte() == 1);
+		$bufferLegnth = $this->getShort();
+		$this->mcpeBuffer = $this->get($bufferLegnth);
 	}
 }

@@ -22,3 +22,5 @@ Desktop.ini
 # Sphinx-doc
 /docs/build/
 !/docs/requirements.txt
+
+bin/*

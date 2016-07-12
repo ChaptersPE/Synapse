@@ -27,8 +27,8 @@ class ClientConnection{
 
 	const MAGIC_BYTES = "\x35\xac\x66\xbf";
 
-	private $receiveBuffer = "";
-	private $sendBuffer = "";
+	private $receiveQueue = [];
+	private $sendQueue = [];
 	/** @var resource */
 	private $socket;
 	private $ip;
@@ -57,15 +57,18 @@ class ClientConnection{
 
 	public function update(){
 		$err = socket_last_error($this->socket);
-		if($err == 10057 or $err == 10054){
-			$this->clientManager->getServer()->getLogger()->error("Synapse client [$this->ip:$this->port] has disconnected unexpectedly");
+		if($err !== 0 && $err !== 35){
+			$this->clientManager->getServer()->getLogger()->error("Synapse client [$this->ip:$this->port] has disconnected unexpectedly error:{$err}");
 			return false;
 		}else{
-			$data = @socket_read($this->socket, 65535, PHP_BINARY_READ);
-			$this->receiveBuffer .= $data;
-			if($this->sendBuffer != ""){
-				socket_write($this->socket, $this->sendBuffer);
-				$this->sendBuffer = "";
+			$buf = @socket_read($this->socket, 65535, PHP_BINARY_READ);
+			if($buf != "") {
+				$this->receiveQueue[] = $buf;
+			}
+			
+			if(!empty($this->sendQueue)) {
+				$buffer = array_shift($this->sendQueue);
+				socket_write($this->socket, $buffer);
 			}
 			return true;
 		}
@@ -80,32 +83,14 @@ class ClientConnection{
 	}
 
 	public function readPacket(){
-		$end = explode(self::MAGIC_BYTES, $this->receiveBuffer, 2);
-		if(count($end) <= 2){
-			if(count($end) == 1){
-				if(strstr($end[0], self::MAGIC_BYTES)){
-					$this->receiveBuffer = "";
-				}else{
-					return null;
-				}
-			}else{
-				$this->receiveBuffer = $end[1];
-			}
-			$buffer = $end[0];
-			if(strlen($buffer) < 4){
-				return null;
-			}
-			$len = Binary::readLInt(substr($buffer, 0, 4));
-			$buffer = substr($buffer, 4);
-			if($len != strlen($buffer)){
-				throw new \Exception("Wrong packet 0x" . ord($buffer{0}) . ": $buffer");
-			}
+		$buffer = array_shift($this->receiveQueue);
+		if($buffer != null) {
 			return $buffer;
 		}
 		return null;
 	}
 
 	public function writePacket($data){
-		$this->sendBuffer .= Binary::writeLInt(strlen($data)) . $data . self::MAGIC_BYTES;
+		$this->sendQueue[] = $data;
 	}
 }

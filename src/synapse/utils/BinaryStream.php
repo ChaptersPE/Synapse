@@ -181,6 +181,28 @@ class BinaryStream extends \stdClass{
 		$this->put($uuid->toBinary());
 	}
 
+	protected function getAddress(&$addr, &$port, &$version = null){
+		$version = $this->getByte();
+		if($version === 4){
+			$addr = ((~$this->getByte()) & 0xff) .".". ((~$this->getByte()) & 0xff) .".". ((~$this->getByte()) & 0xff) .".". ((~$this->getByte()) & 0xff);
+			$port = $this->getShort();
+		}else{
+			//TODO: IPv6
+		}
+	}
+
+	protected function putAddress($addr, $port, $version = 4){
+		$this->putByte($version);
+		if($version === 4){
+			foreach(explode(".", $addr) as $b){
+				$this->putByte((~((int) $b)) & 0xff);
+			}
+			$this->putShort($port);
+		}else{
+			//IPv6
+		}
+	}
+
 	public function getString(){
 		return $this->get($this->getShort());
 	}
