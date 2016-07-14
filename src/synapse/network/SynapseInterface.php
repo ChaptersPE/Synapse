@@ -22,6 +22,7 @@
 namespace synapse\network;
 
 use synapse\Client;
+use synapse\network\protocol\spp\ChannelComsPacket;
 use synapse\network\protocol\spp\DisconnectPacket;
 use synapse\network\protocol\spp\ConnectPacket;
 use synapse\network\protocol\spp\DataPacket;
@@ -144,5 +145,6 @@ class SynapseInterface{
 		$this->registerPacket(Info::PLAYER_LOGOUT_PACKET, PlayerLogoutPacket::class);
 		$this->registerPacket(Info::INFORMATION_PACKET, InformationPacket::class);
 		$this->registerPacket(Info::TRANSFER_PACKET, TransferPacket::class);
+		$this->registerPacket(Info::CHANNEL_COMS_PACKET, ChannelComsPacket::class);
 	}
 }

@@ -157,6 +157,10 @@ class Client{
 					$this->players[$uuid]->transfer($clients[$packet->clientHash], true);
 				}
 				break;
+			case Info::CHANNEL_COMS_PACKET:
+				/** @var ChannelComsPacket $pk */
+				$this->server->getPluginManager()->callEvent($ev = new ChannelListenerEvent($pk->channel, $pk->data));
+				break;
 			default:
 				$this->server->getLogger()->error("Client {$this->getIp()}:{$this->getPort()} send an unknown packet " . $packet::NETWORK_ID);
 		}
