@@ -36,20 +36,15 @@ class PlayerLoginPacket extends DataPacket{
 	public function encode(){
 		$this->reset();
 		$this->putUUID($this->uuid);
-
 		$this->putAddress($this->address, $this->port);
-
 		$this->putByte($this->isFirstTime);
-		$this->putLShort(strlen($this->cachedLoginPacket));
 		$this->put($this->cachedLoginPacket);
 	}
 
 	public function decode(){
 		$this->uuid = $this->getUUID();
-
 		$this->getAddress($this->address, $this->port);
-
 		$this->isFirstTime = ($this->getByte() == 1);
-		$this->cachedLoginPacket = $this->get($this->getLShort());
+		$this->cachedLoginPacket = $this->get(true);
 	}
 }

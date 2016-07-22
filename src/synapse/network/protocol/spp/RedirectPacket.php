@@ -35,14 +35,12 @@ class RedirectPacket extends DataPacket{
 		$this->reset();
 		$this->putUUID($this->uuid);
 		$this->putByte($this->direct);
-		$this->putShort(strlen($this->mcpeBuffer));
 		$this->put($this->mcpeBuffer);
 	}
 
 	public function decode(){
 		$this->uuid = $this->getUUID();
-		$this->direct = ($this->getByte() == 1);
-		$bufferLegnth = $this->getShort();
-		$this->mcpeBuffer = $this->get($bufferLegnth);
+		$this->direct = ($this->getByte() === 1);
+		$this->mcpeBuffer = $this->get(true);
 	}
 }

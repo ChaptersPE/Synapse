@@ -26,25 +26,21 @@ class ConnectPacket extends DataPacket{
 
 	public $protocol = Info::CURRENT_PROTOCOL;
 	public $maxPlayers;
-	public $isMainServer;
 	public $description;
 	public $encodedPassword;
 
 	public function encode(){
 		$this->reset();
 		$this->putInt($this->protocol);
-		$this->putInt($this->maxPlayers);
-		$this->putByte($this->isMainServer);
+		$this->putLShort($this->maxPlayers);
 		$this->putString($this->description);
 		$this->putString($this->encodedPassword);
 	}
 
 	public function decode(){
 		$this->protocol = $this->getInt();
-		$this->maxPlayers = $this->getInt();
-		$this->isMainServer = ($this->getByte() == 1);
+		$this->maxPlayers = $this->getLShort();
 		$this->description = $this->getString();
 		$this->encodedPassword = $this->getString();
 	}
-
 }

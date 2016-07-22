@@ -119,9 +119,9 @@ class Client{
 				if($this->server->comparePassword(base64_decode($packet->encodedPassword))){
 					$this->setVerified();
 					$pk->message = InformationPacket::INFO_LOGIN_SUCCESS;
-					$this->isMainServer = $packet->isMainServer;
 					$this->description = $packet->description;
 					$this->maxPlayers = $packet->maxPlayers;
+					$this->isMainServer = true;
 					$this->server->addClient($this);
 					$this->server->getLogger()->notice("Client {$this->getIp()}:{$this->getPort()} has connected successfully");
 					$this->server->getLogger()->notice("mainServer: " . $this->isMainServer);
