@@ -30,6 +30,7 @@ use synapse\network\protocol\mcpe\GenericPacket;
 use synapse\network\protocol\spp\ConnectPacket;
 use synapse\network\protocol\spp\DataPacket;
 use synapse\network\protocol\spp\DisconnectPacket;
+use synapse\network\protocol\spp\HeartbeatPacket;
 use synapse\network\protocol\spp\Info;
 use synapse\network\protocol\spp\InformationPacket;
 use synapse\network\protocol\spp\RedirectPacket;
@@ -94,6 +95,7 @@ class Client{
 		}*/
 		switch($packet::NETWORK_ID){
 			case Info::HEARTBEAT_PACKET:
+				/** @var HeartbeatPacket $packet */
 				if(!$this->isVerified()){
 					$this->server->getLogger()->error("Client {$this->getIp()}:{$this->getPort()} is not verified");
 					return;
@@ -101,9 +103,8 @@ class Client{
 				$this->lastUpdate = microtime(true);
 				$this->server->getLogger()->notice("Received Heartbeat Packet from {$this->getIp()}:{$this->getPort()}");
 
-				$pk = new InformationPacket();
-				$pk->type = InformationPacket::TYPE_CLIENT_DATA;
-				$pk->message = $this->server->getClientData();
+				$pk = new HeartbeatPacket();
+				$pk->time = $packet->time;
 				$this->sendDataPacket($pk);
 
 				break;

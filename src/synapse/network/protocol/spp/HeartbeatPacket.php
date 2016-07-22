@@ -24,20 +24,14 @@ namespace synapse\network\protocol\spp;
 class HeartbeatPacket extends DataPacket{
 	const NETWORK_ID = Info::HEARTBEAT_PACKET;
 
-	public $tps;
-	public $load;
-	public $upTime;
+	public $time;
 
 	public function encode(){
 		$this->reset();
-		$this->putFloat($this->tps);
-		$this->putFloat($this->load);
-		$this->putLong($this->upTime);
+		$this->putLLong($this->time);
 	}
 
 	public function decode(){
-		$this->tps = $this->getFloat();
-		$this->load = $this->getFloat();
-		$this->upTime = $this->getLong();
+		$this->time = $this->getLLong();
 	}
 }
