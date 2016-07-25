@@ -101,7 +101,7 @@ class Client{
 					return;
 				}
 				$this->lastUpdate = microtime(true);
-				$this->server->getLogger()->notice("Received Heartbeat Packet from {$this->getIp()}:{$this->getPort()}");
+//				$this->server->getLogger()->notice("Received Heartbeat Packet from {$this->getIp()}:{$this->getPort()}");
 
 				$pk = new HeartbeatPacket();
 				$pk->time = $packet->time;
