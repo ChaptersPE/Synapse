@@ -32,9 +32,11 @@ class SynapseSocket{
 			$logger->critical("Perhaps a server is already running on that port?");
 			exit(1);
 		}
-		socket_listen($this->socket);
-		$logger->info("Synapse is running on $interface:$port");
+		socket_set_option($this->socket, SOL_SOCKET, SO_SNDBUF, 65535);
+		socket_set_option($this->socket, SOL_SOCKET, SO_RCVBUF, 65535);
 		socket_set_nonblock($this->socket);
+		socket_listen($this->socket);
+		$logger->info("Synapse is running on $interface:$port");		
 	}
 
 	public function getClient(){

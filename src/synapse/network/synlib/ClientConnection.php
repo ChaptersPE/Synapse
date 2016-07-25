@@ -33,11 +33,14 @@ class ClientConnection{
 	private $socket;
 	private $ip;
 	private $port;
+	
+	private $lastBuffer = '';
 
 	public function __construct(ClientManager $clientManager, $socket){
 		$this->clientManager = $clientManager;
 		$this->socket = $socket;
 		socket_getpeername($this->socket, $address, $port);
+		socket_set_nonblock($this->socket);
 		$this->ip = $address;
 		$this->port = $port;
 		$clientManager->getServer()->getLogger()->notice("Client [$address:$port] has connected.");
@@ -57,18 +60,40 @@ class ClientConnection{
 
 	public function update(){
 		$err = socket_last_error($this->socket);
-		if($err !== 0 && $err !== 35){
+		if($err !== 0 && $err !== 11){
 			$this->clientManager->getServer()->getLogger()->error("Synapse client [$this->ip:$this->port] has disconnected unexpectedly error:{$err}");
 			return false;
 		}else{
-			$buf = @socket_read($this->socket, 65535, PHP_BINARY_READ);
-			if($buf != "") {
-				$this->receiveQueue[] = $buf;
+			$currenBuffer = $this->lastBuffer;
+			$this->lastBuffer = '';
+			while (strlen($buffer = @socket_read($this->socket, 65535, PHP_BINARY_READ)) > 0) {
+				$currenBuffer .= $buffer;
+			}
+			
+			
+			if (($dataLen = strlen($currenBuffer)) > 0) {
+				$offset = 0;
+				while ($offset < $dataLen) {
+						$len = unpack('N', substr($currenBuffer, $offset, 4));
+						$len = $len[1];
+						if(($offset + $len + 4) > $dataLen) {
+							$this->lastBuffer = substr($currenBuffer, $offset);
+							break;
+						}
+						$offset += 4;	
+						$data = zlib_decode(substr($currenBuffer, $offset, $len));
+						$offset += $len;
+						if(!empty($data)) {	
+							$this->receiveQueue[] = $data;
+						}						
+					
+				}
 			}
 			
 			if(!empty($this->sendQueue)) {
 				$buffer = array_shift($this->sendQueue);
-				socket_write($this->socket, $buffer);
+				$buffer = zlib_encode($buffer,  ZLIB_ENCODING_DEFLATE, 7);
+				socket_write($this->socket, pack('N', strlen($buffer)) . $buffer);
 			}
 			return true;
 		}
